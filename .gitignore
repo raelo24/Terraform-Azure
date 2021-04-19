@@ -1,0 +1,27 @@
+# .terraform (provider binaries, external module source code, …)
+# these are principally local directories
+**/.terraform/*
+
+# state files
+*.tfstate
+*.tfstate.*
+
+# Crash log files (if you run Terraform locally)
+crash.log
+crash.*.log
+
+# Variable files are ignored since they usually contain sensitive data
+# like private keys, password, and other secrets
+*.tfvars
+*.tfvars.json
+
+# Override files (HCL or JSON, depending on your configuration)
+# these are used to override resources locally and should be ignored
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore Terraform CLI configuration files
+.terraformrc
+terraform.rc
