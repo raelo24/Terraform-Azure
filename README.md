@@ -1,5 +1,5 @@
 **Introduction**
-This is a sample kickstart project for configuring infrastructure on Azure. It it modularized and adding more child services for any particular resource is a parameter setting. Feel free to use and contribute to the project.
+This is a sample kickstart project for configuring infrastructure on Azure. It is modularized and adding more child services for any particular resource is a parameter setting. Feel free to use and contribute to the project by adding modules for mmore Azure resources.
 
 **Description**
 The following Azure services are set up in this project
@@ -13,6 +13,5 @@ The following Azure services are set up in this project
 7. Application Insight
 8. Azure Function Apps
 9. Radis Cache
-10. Service Bus
-11. SQL Database
-12. Storage
+10. SQL Database
+11. Storage
