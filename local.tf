@@ -102,6 +102,8 @@ locals {
     }
   }
 
+  servicebus_name = "Sb${local.org}${var.env}sample"
+
   application_gateway = {
     "dev" = {
       agw_name          = "${local.org}-agw-${var.env}"

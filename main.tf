@@ -97,3 +97,12 @@ module "application_gateway" {
   url_path_name            = local.path_rule_name
   backend_configs          = local.backend_configs
 }
+
+module "service_bus" {
+  source                   = "./modules/service-bus"
+  resource_group_name      = module.resource_group.rg_name
+  location                 = module.resource_group.rg_location
+  servicebus_sku           = var.servicebus-sku
+  tags                     = local.tags
+  servicebus_name          = local.servicebus_name
+}
