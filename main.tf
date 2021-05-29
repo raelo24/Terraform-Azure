@@ -69,3 +69,31 @@ module "app-insights" {
   location            = module.resource_group.rg_location
   tags                = local.tags
 }
+
+module "application_gateway" {
+  source                   = "./modules/application-gateway"
+  agw_name                 = local.application_gateway[var.env].agw_name
+  agw_sku_tier             = local.application_gateway[var.env].agw_sku_tier
+  agw_sku_name             = local.application_gateway[var.env].agw_sku_name
+  location                 = module.resource_group.rg_location
+  resource_group_name      = module.resource_group.rg_name
+  address_space            = local.application_gateway[var.env].address_space
+  address_prefixes         = local.application_gateway[var.env].address_prefixes
+  custom_probe_name        = local.custom_probe_name
+  custom_probe_path        = local.custom_probe_path
+  path_rules               = local.path_rules
+  backend_config           = local.backend_configs
+  max_capacity             = local.application_gateway[var.env].max_capacity
+  min_capacity             = local.application_gateway[var.env].min_capacity
+  backend_fqdns            = local.backend_fqdns
+  identity_type            = local.application_gateway[var.env].agw_identity_type
+  public_agw_ip_name       = "${local.application_gateway[var.env].agw_name}-public-ip"
+  http_listener_name       = "${local.application_gateway[var.env].agw_name}-listener"
+  gateway_ip_configuration = "${local.application_gateway[var.env].agw_name}-configuration"
+  tags                     = local.tags
+  routing_rule_name        = "${local.application_gateway[var.env].agw_name}-routing-rule"
+  frontend_ip_name         = local.application_gateway[var.env].agw_name
+  frontend_port_name       = local.application_gateway[var.env].agw_name
+  url_path_name            = local.path_rule_name
+  backend_configs          = local.backend_configs
+}

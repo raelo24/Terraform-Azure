@@ -72,7 +72,7 @@ locals {
   # - Include more hostname depending ont he needs of your org
   static_host_names = {
     "backendapi" = "api.${var.env}.${local.domain}"
-  } 
+  }  
 
   url_path_map_name = "api_path_${local.org}"
   path_rule_name    = "path_name_${local.org}"
@@ -99,6 +99,29 @@ locals {
       family   = "C"
       sku      = "Standard"
       capacity = "0"
+    }
+  }
+
+  application_gateway = {
+    "dev" = {
+      agw_name          = "${local.org}-agw-${var.env}"
+      agw_sku_tier      = "WAF_v2"
+      agw_sku_name      = "WAF_v2"
+      agw_identity_type = "UserAssigned"
+      min_capacity      = 1
+      max_capacity      = 2
+      address_space     = ["10.0.0.0/16"]
+      address_prefixes  = ["10.0.1.0/24"]
+    }
+    "prod" = {
+      agw_name          = "${local.org}-agw-${var.env}"
+      agw_sku_tier      = "WAF_v2"
+      agw_sku_name      = "WAF_v2"
+      agw_identity_type = "UserAssigned"
+      min_capacity      = 1
+      max_capacity      = 2
+      address_space     = ["10.0.0.0/16"]
+      address_prefixes  = ["10.0.1.0/24"]
     }
   }
 }
