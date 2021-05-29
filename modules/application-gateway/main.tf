@@ -40,22 +40,6 @@ resource "azurerm_log_analytics_workspace" "workspace" {
   tags                = var.tags
 }
 
-# App analytics
-# resource "azurerm_log_analytics_solution" "agw" {
-#   solution_name         = "GatewayInsight"
-#   location              = var.location
-#   resource_group_name   = var.resource_group_name
-#   workspace_name        = azurerm_log_analytics_workspace.workspace.name
-#   workspace_resource_id = azurerm_log_analytics_workspace.workspace.id
-
-#   plan {
-#     publisher = "Microsoft"
-#     product   = "OMSGallery/GatewayInsight"
-#   }
-
-#   depends_on = [azurerm_log_analytics_workspace.workspace]
-# }
-
 # Managed service Identity
 resource "azurerm_user_assigned_identity" "agw_user_identity" {
   location            = var.location
@@ -140,7 +124,6 @@ resource "azurerm_application_gateway" "agw" {
 
   request_routing_rule {
     name               = var.routing_rule_name
-    priority           = 9
     rule_type          = "PathBasedRouting" # or Basic; but PathBasedRouting is for URL-based routing
     http_listener_name = var.http_listener_name
     url_path_map_name  = var.url_path_name

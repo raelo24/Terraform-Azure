@@ -106,3 +106,14 @@ module "service_bus" {
   tags                     = local.tags
   servicebus_name          = local.servicebus_name
 }
+
+
+module "keyvault" {
+  source                  = "./modules/key-vault"
+  kv_name                 = local.keyvault.name
+  resource_group_location = module.resource_group.rg_location
+  resource_group_name     = module.resource_group.rg_name
+  tags                    = local.tags
+  sku_name                = "standard"
+  Keyvault_secret         = local.keyvault.secrets
+}

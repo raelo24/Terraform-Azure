@@ -13,14 +13,14 @@ locals {
 
   app_service_plan = {
     "dev" = {
-        name            = "${local.org}-${var.env}-plan"
-        size            = "B1"
-        tier            =  "Basic"
+      name = "${local.org}-${var.env}-plan"
+      size = "B1"
+      tier = "Basic"
     }
     "prod" = {
-        name            = "${local.org}-${var.env}-plan"
-        size            = "B1"
-        tier            =  "Basic"
+      name = "${local.org}-${var.env}-plan"
+      size = "B1"
+      tier = "Basic"
     }
   }
   azure_function_list = [
@@ -72,7 +72,7 @@ locals {
   # - Include more hostname depending ont he needs of your org
   static_host_names = {
     "backendapi" = "api.${var.env}.${local.domain}"
-  }  
+  }
 
   url_path_map_name = "api_path_${local.org}"
   path_rule_name    = "path_name_${local.org}"
@@ -124,6 +124,15 @@ locals {
       max_capacity      = 2
       address_space     = ["10.0.0.0/16"]
       address_prefixes  = ["10.0.1.0/24"]
+    }
+  }
+
+  keyvault = {
+    name = "kv-${local.org}-${var.env}-admin" # must be globally unique
+    secrets = {
+      "db-password" = var.sql_server_password
+      "api-key"     = "XYZ-ABC-1234"
+      "jwt-secret"  = "jwt-secret-value"
     }
   }
 }
