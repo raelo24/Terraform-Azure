@@ -1,17 +1,13 @@
 variable "app_service_plan_name" {
-    type        = string
-    description = "name of the app service plan"      
+  type        = string
+  description = "name of the app service plan"
 }
 
-variable "size" {
-    type        = string
-    description = "Size of the app service plan"  
+variable "sku" {
+  type        = string
+  description = "Size of the service plan"
 }
 
-variable "tier" {
-    type = string
-    description = "Tier of the resource group"
-}
 variable "resource_group_name" {
   type        = string
   description = "Name of the resource group"
@@ -22,3 +18,7 @@ variable "resource_group_location" {
   description = "Location of the resource group"
 }
 
+variable "tags" {
+  type        = map(any)
+  description = "Tags for resources"
+}

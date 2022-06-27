@@ -14,13 +14,11 @@ locals {
   app_service_plan = {
     "dev" = {
       name = "${local.org}-${var.env}-plan"
-      size = "B1"
-      tier = "Basic"
+      sku = "B1"
     }
     "prod" = {
       name = "${local.org}-${var.env}-plan"
-      size = "B1"
-      tier = "Basic"
+      sku = "B1"
     }
   }
   azure_function_list = [

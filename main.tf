@@ -8,10 +8,10 @@ module "resource_group" {
 module "app_service_plan" {
   source                  = "./modules/app-service-plan"
   app_service_plan_name   = local.app_service_plan[var.env].name
-  tier                    = local.app_service_plan[var.env].tier
+  sku                     = local.app_service_plan[var.env].sku
   resource_group_location = module.resource_group.rg_location
   resource_group_name     = module.resource_group.rg_name
-  size                    = local.app_service_plan[var.env].size
+  tags                    = local.tags
 }
 
 module "storage" {
@@ -99,12 +99,12 @@ module "application_gateway" {
 }
 
 module "service_bus" {
-  source                   = "./modules/service-bus"
-  resource_group_name      = module.resource_group.rg_name
-  location                 = module.resource_group.rg_location
-  servicebus_sku           = var.servicebus-sku
-  tags                     = local.tags
-  servicebus_name          = local.servicebus_name
+  source              = "./modules/service-bus"
+  resource_group_name = module.resource_group.rg_name
+  location            = module.resource_group.rg_location
+  servicebus_sku      = var.servicebus-sku
+  servicebus_name     = local.servicebus_name
+  tags                = local.tags
 }
 
 
