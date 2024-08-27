@@ -46,10 +46,8 @@ module "azure_function" {
   resource_group_location    = module.resource_group.rg_location
   storage_name               = module.storage.storagename
   storage_account_access_key = module.storage.accesskey
-  app_service_plan_id        = module.app_service_plan.appserviceplanid
-  identity_type              = "UserAssigned"
+  service_plan_id            = module.app_service_plan.appserviceplanid
   tags                       = local.tags
-  https_only                 = true
 }
 
 module "redis_cache" {

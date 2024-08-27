@@ -9,8 +9,8 @@ variable "resource_group_location" {
 }
 
 variable "function_list" {
-  type = list(string)
-  description = "List of function to create"  
+  type        = list(string)
+  description = "List of function to create"
 }
 
 variable "storage_account_access_key" {
@@ -23,19 +23,9 @@ variable "storage_name" {
   description = "Storage name for the function app"
 }
 
-variable "app_service_plan_id" {
+variable "service_plan_id" {
   type        = string
   description = "App service plan id being used"
-}
-
-variable "identity_type" {
-  type = string
-  description = "Identity used"
-}
-
-variable "https_only" {
-  type = bool
-  description = "Should run on https alone?"  
 }
 
 variable "tags" {
