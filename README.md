@@ -22,7 +22,7 @@ The config.tf serves as the file to set most account-specific details for the cl
 local.xxxx
 ```
 ### Service Plan ###
-The service plan is created with a module with properties like os type, sku name.
+The service plan is created with a module with properties like os type, sku name. One service plan is created per environment.
 
 ```
 module "service_plan" {
@@ -58,7 +58,7 @@ The following parameters have configuration options
 |SKU | B1, B2, B3, D1, F1, I1, I2, I3,...I4mv2, I5v2, I5mv2, I6v2, P1v2, P2v2, P3| B1 |
 
 ### Storage ###
-The storage module creates a storage account and a blob storage.
+The storage module creates a storage account, a blob storage and several containers.
 
 ```
 module "storage" {
@@ -72,7 +72,7 @@ module "storage" {
   tags                     = local.tags
 }
 ```
-The <a href="#service-plan">service plan</a> is used. Then the list of containers to create is specified in the config.tf. Container name can be added or removed from the list and terraform will update the resources accordingly.
+The <a href="#service-plan">service plan</a> is used. Then the list of containers to create is specified in the config. Container name can be added or removed from the list and terraform will update the resources accordingly.
 
 ```
 storage_containers = ["my-storage-container", "my2-storage-container"] 
@@ -141,7 +141,7 @@ The list of function apps to create are specified below. Note that updating this
   azure_function_list =   ["my-function-${var.env}", "my-function2-${var.env}", "my-function3-${var.env}"]
 ```
 ### Application Gateway ###
-This module provisions the application gateway. The configuration is defined below.
+This module provisions the one application gateway per environment. The configuration is defined below.
 
 ```
 app_gateway = {
@@ -168,3 +168,41 @@ The parameter options can be defined as follows
 |------|-------------|:--------:|
 |AGW SKU Tier | Standard, Standard_v2, WAF and WAF_v2 | Standard |
 |AGW SKU Name | Standard_Small, Standard_Medium, Standard_Large, Standard_v2, WAF_Medium, WAF_Large, and WAF_v2| WAF_v2 |
+
+### Redis Cache ###
+One Redis cache is created per environment. 
+```
+module "redis_cache" {
+  source               = "./modules/redis-cache"
+  redis_cache_name     = local.redis_cache[var.env].name
+  resource_group_name  = module.resource_group.rg_name
+  location             = module.resource_group.rg_location
+  redis_cache_family   = local.redis_cache[var.env].family
+  redis_cache_sku_name = local.redis_cache[var.env].sku
+  tags                 = local.tags
+}
+```
+
+The configuration is specified as
+```
+redis_cache = {
+    dev = {
+      name     = "redis-${local.org}-${var.env}"
+      family   = "C"
+      sku      = "Basic"
+      capacity = "0"
+    }
+    prod = {
+      name     = "redis-${local.org}-${var.env}"
+      family   = "C"
+      sku      = "Standard"
+      capacity = "0"
+    }
+  }
+```
+The options for the various parameters are defined as
+| Name | Options |  Default |
+|------|-------------|:--------:|
+|Family | 'C' for Basic/Standard, and 'P' for Premium | C |
+|SKU | Basic, Standard and Premium | Basic |
+|Capacity | 0, 1, 2, 3, 4, 5, 6 for C and 1, 2, 3, 4, 5 for P | 0 |
