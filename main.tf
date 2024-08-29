@@ -5,18 +5,19 @@ module "resource_group" {
   tags     = local.tags
 }
 
-module "app_service_plan" {
+module "service_plan" {
   source                  = "./modules/app-service-plan"
-  app_service_plan_name   = local.app_service_plan[var.env].name
-  sku                     = local.app_service_plan[var.env].sku
+  app_service_plan_name   = local.service_plan[var.env].name
+  sku                     = local.service_plan[var.env].sku
   resource_group_location = module.resource_group.rg_location
   resource_group_name     = module.resource_group.rg_name
   tags                    = local.tags
+  os_type                 = local.service_plan[var.env].os
 }
 
 module "storage" {
   source                   = "./modules/storage"
-  storage_name             = "st${local.org}${var.env}"
+  storage_name             = "${local.org}${var.env}storage"
   container_list           = local.storage_containers
   resource_group_location  = module.resource_group.rg_location
   resource_group_name      = module.resource_group.rg_name
@@ -25,17 +26,17 @@ module "storage" {
   tags                     = local.tags
 }
 
-module "sql_database" {
+module "sql_server_db" {
   source                    = "./modules/sql-server-db"
-  sql_server_name           = "${local.sqlserver.sql_server_name}-${var.env}"
+  sql_server_name           = local.sqlserverdb[var.env].sql_server_name
   resource_group_name       = module.resource_group.rg_name
   location                  = module.resource_group.rg_location
-  sql_database_collation    = local.sqldb[var.env].sql_database_collation
-  sql_server_version        = local.sqlserver.sql_server_version
+  sql_database_collation    = local.sqlserverdb[var.env].sql_database_collation
+  sql_server_version        = local.sqlserverdb[var.env].sql_server_version
   sql_server_admin_username = var.sql_server_username
   sql_server_admin_password = var.sql_server_password
-  sql_database_sku_name     = local.sqldb[var.env].sql_database_sku_name
-  database_list             = local.sqlserver.databases
+  sql_database_sku_name     = local.sqlserverdb[var.env].sql_database_sku_name
+  database_list             = local.sqlserverdb[var.env].sql_databases
   tags                      = local.tags
 }
 
@@ -46,7 +47,7 @@ module "azure_function" {
   resource_group_location    = module.resource_group.rg_location
   storage_name               = module.storage.storagename
   storage_account_access_key = module.storage.accesskey
-  service_plan_id            = module.app_service_plan.appserviceplanid
+  service_plan_id            = module.service_plan.appserviceplanid
   tags                       = local.tags
 }
 

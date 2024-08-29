@@ -35,6 +35,7 @@ variable "sql_database_sku_name" {
 
 variable "sql_database_collation" {
   type        = string
+  default     = "SQL_Latin1_General_CP1_CI_AS"
   description = "SQL Server database collation"
 }
 variable "database_list" {

@@ -22,3 +22,9 @@ variable "tags" {
   type        = map(any)
   description = "Tags for resources"
 }
+
+variable "os_type" {
+  type = string
+  default = "Linux"
+  description = "The os type for this service plan"  
+}
