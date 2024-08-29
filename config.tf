@@ -43,7 +43,10 @@ locals {
     Owner       = local.org
   }
 
-  app_insights_name = "app_insights_${local.org}"
+  app_insights = {
+    name             = "${local.org}-appinsight-${var.env}"
+    application_type = "web"
+  }
 
   storage_containers = ["my-storage-container", "my2-storage-container"]
 
@@ -79,7 +82,7 @@ locals {
       path_rules              = ["/backend/*"]
       enable_waf              = true
     }
-    staging = {
+    prod = {
       agw_name                = "${local.org}-agw-${var.env}"
       agw_sku_tier            = "WAF_v2"
       agw_sku_name            = "WAF_v2"

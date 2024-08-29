@@ -16,3 +16,7 @@ variable "tags" {
   description = "Tags for resources"
 }
 
+variable "application_type" {
+  type        = string
+  description = "Specifies the type of Application Insights to create"
+}

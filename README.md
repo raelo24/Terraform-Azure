@@ -206,3 +206,27 @@ The options for the various parameters are defined as
 |Family | 'C' for Basic/Standard, and 'P' for Premium | C |
 |SKU | Basic, Standard and Premium | Basic |
 |Capacity | 0, 1, 2, 3, 4, 5, 6 for C and 1, 2, 3, 4, 5 for P | 0 |
+
+### Application Insights ###
+```
+module "app-insights" {
+  source              = "./modules/application-insights"
+  app_insights_name   = local.app_insights.name
+  resource_group_name = module.resource_group.rg_name
+  location            = module.resource_group.rg_location
+  application_type    = local.app_insights.application_type
+  tags                = local.tags
+}
+```
+
+The configuration is pretty simple
+```
+ app_insights = {
+    name             = "${local.org}-appinsight-${var.env}"
+    application_type = "web"
+  }
+  ```
+  The options for the parameters are defined as
+| Name | Options |  Default |
+|------|-------------|:--------:|
+|App Type | ios, java,  MobileCenter (for App Center), Node.JS, phone (for Windows Phone), web (for ASP.NET) | web |

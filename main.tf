@@ -52,7 +52,7 @@ module "azure_function" {
 }
 
 module "redis_cache" {
-  source               = "./modules/radis-cache"
+  source               = "./modules/redis-cache"
   redis_cache_name     = local.redis_cache[var.env].name
   resource_group_name  = module.resource_group.rg_name
   location             = module.resource_group.rg_location
@@ -63,9 +63,10 @@ module "redis_cache" {
 
 module "app-insights" {
   source              = "./modules/application-insights"
-  app_insights_name   = "${local.app_insights_name}-${var.env}"
+  app_insights_name   = local.app_insights.name
   resource_group_name = module.resource_group.rg_name
   location            = module.resource_group.rg_location
+  application_type    = local.app_insights.application_type
   tags                = local.tags
 }
 
