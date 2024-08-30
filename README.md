@@ -232,3 +232,28 @@ The configuration is pretty simple
 |App Type | ios, java, MobileCenter (for App Center), Node.JS, phone (for Windows Phone), web (for .NET) | web |
 
 ### Service Bus ###
+The Service bus module creates a service bus namespace and then the topics with their corresponding subscriptions.
+```
+module "service_bus" {
+  source              = "./modules/service-bus"
+  resource_group_name = module.resource_group.rg_name
+  location            = module.resource_group.rg_location
+  servicebus_sku      = var.servicebus-sku
+  servicebus_name     = "${local.org}${var.env}sb"
+  topic_subscriptions = local.servicebus
+  tags                = local.tags
+}
+```
+The input for topics and subscriptions can be set in the config file.
+```
+servicebus = [
+    {
+      topic         = "notifications"
+      subscriptions = ["email-subscription", "sms-subscription"] 
+    },
+    {
+      topic         = "payment-completed"
+      subscriptions = ["inventory-subcription", "logistics-subscription"]
+    }
+  ]
+  ```

@@ -68,7 +68,7 @@ locals {
   servicebus = [
     {
       topic         = "notifications"
-      subscriptions = ["email-subscription"] //"sms-subscription"
+      subscriptions = ["email-subscription", "sms-subscription"]
     },
     {
       topic         = "payment-completed"
