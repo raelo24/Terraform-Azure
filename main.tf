@@ -91,7 +91,8 @@ module "service_bus" {
   resource_group_name = module.resource_group.rg_name
   location            = module.resource_group.rg_location
   servicebus_sku      = var.servicebus-sku
-  servicebus_name     = local.servicebus_name
+  servicebus_name     = "${local.org}${var.env}sb"
+  topic_subscriptions = local.servicebus
   tags                = local.tags
 }
 

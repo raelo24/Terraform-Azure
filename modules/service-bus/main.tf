@@ -6,24 +6,46 @@ resource "azurerm_servicebus_namespace" "servicebus" {
   tags                = var.tags
 }
 
+locals {
+  topics = {
+    for i in var.topic_subscriptions : i.topic => i
+  }
+
+  #-  
+  #- Formatting for subscription => topic mapping for each subsription
+  #- Thanks to idea from https://www.reddit.com/r/Terraform/comments/tbai8o/comment/i05y74u/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+
+  //first create a tuple with 2 elements
+  tuple = flatten([
+    for details in local.topics : [
+      for sub in details.subscriptions : {
+        topic        = details.topic
+        subscription = sub
+      }
+    ]
+  ])
+
+  //next create the mapping from the tuple
+  subscriptions = {
+    for details in local.tuple :
+    details.subscription => details.topic
+  }
+}
+
+
 #service bus topics. Add more topic using this sample below
-resource "azurerm_servicebus_topic" "servicebus_topic_example" {
-  name                  = "cloudsetup-example-topic"
+resource "azurerm_servicebus_topic" "topics" {
+  for_each              = local.topics
+  name                  = each.key
   namespace_id          = azurerm_servicebus_namespace.servicebus.id
-  max_size_in_megabytes = 1024 #1MB. Increase the size according to your need   
+  max_size_in_megabytes = var.max_size
+  depends_on            = [azurerm_servicebus_namespace.servicebus]
 }
 
-#subscription for the topic
-resource "azurerm_servicebus_subscription" "servicebus_subscription_example" {
-  name               = "cloudsetup-example-topic-subscription"
-  topic_id           = azurerm_servicebus_topic.servicebus_topic_example.id
-  max_delivery_count = 10
-}
-
-#subscription rule
-resource "azurerm_servicebus_subscription_rule" "servicebus_topic_rule_example" {
-  name            = "AzureCloudsetupExmapleConfig"
-  subscription_id = azurerm_servicebus_subscription.servicebus_subscription_example.id
-  filter_type     = "SqlFilter"
-  sql_filter      = "MessageType = 'ExampleNotification'" #example notification is your message type received
+resource "azurerm_servicebus_subscription" "subscriptions" {
+  for_each           = local.subscriptions
+  name               = each.key
+  topic_id           = azurerm_servicebus_topic.topics[each.value].id
+  max_delivery_count = var.max_delivery_count
+  depends_on         = [azurerm_servicebus_topic.topics]
 }

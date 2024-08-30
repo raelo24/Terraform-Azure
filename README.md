@@ -229,4 +229,6 @@ The configuration is pretty simple
   The options for the parameters are defined as
 | Name | Options |  Default |
 |------|-------------|:--------:|
-|App Type | ios, java,  MobileCenter (for App Center), Node.JS, phone (for Windows Phone), web (for ASP.NET) | web |
+|App Type | ios, java, MobileCenter (for App Center), Node.JS, phone (for Windows Phone), web (for .NET) | web |
+
+### Service Bus ###

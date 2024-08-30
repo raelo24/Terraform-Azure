@@ -65,7 +65,16 @@ locals {
     }
   }
 
-  servicebus_name = "Sb${local.org}${var.env}sample"
+  servicebus = [
+    {
+      topic         = "notifications"
+      subscriptions = ["email-subscription"] //"sms-subscription"
+    },
+    {
+      topic         = "payment-completed"
+      subscriptions = ["inventory-subcription", "logistics-subscription"]
+    }
+  ]
 
   #-application gateway config for dev and staging. More environments can be added similarly
   app_gateway = {
