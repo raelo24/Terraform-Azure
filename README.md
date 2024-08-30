@@ -226,7 +226,7 @@ The configuration is pretty simple
     application_type = "web"
   }
   ```
-  The options for the parameters are defined as
+The options for the parameters are defined as
 | Name | Options |  Default |
 |------|-------------|:--------:|
 |App Type | ios, java, MobileCenter (for App Center), Node.JS, phone (for Windows Phone), web (for .NET) | web |
@@ -257,3 +257,41 @@ servicebus = [
     }
   ]
   ```
+
+### Azure Key Vault ###
+Azure key vault is created for the environment. 
+```
+module "keyvault" {
+  source                  = "./modules/key-vault"
+  kv_name                 = local.keyvault.name
+  resource_group_location = module.resource_group.rg_location
+  resource_group_name     = module.resource_group.rg_name
+  tags                    = local.tags
+  sku_name                = local.keyvault.sku_name
+  Keyvault_secrets        = local.keyvault.secrets
+}
+```
+The Key vault secrets specified in a list are created but the values can be populated manually. This ensures all secrets needed by any service principal is always available for every environment.
+
+The settings are shown in the config file.
+```
+keyvault  =  {
+    name             = "kv-${local.org}-${var.env}-admin" # must be globally unique
+    sku_name         = "standard"
+    secrets     =   {
+                      "db-password" = var.sql_server_password #value from .tfvars or use keybase
+                      "api-key"     = ""
+                      "jwt-secret"  = ""
+                }
+  }
+  ```
+The options for the parameters are defined as
+| Name | Options |  Default |
+|------|-------------|:--------:|
+|SKU Name | standard, premium | standard |
+
+  Make sure the service principal used to apply terraform state has Key Vault Administrator role otherwise it will not permit the creation of secrets. On Azure Cli, the role can be assigned as shown below. <a href="https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-cli">Check more info</a>
+  ```
+  az role assignment create --assignee "xxxx-1249-446d-8de5-53xxxx" --role "Key Vault Administrator" --scope "/subscriptions/0000001100000000"
+```
+Enter the id for the service principal as the assignee.

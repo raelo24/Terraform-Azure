@@ -103,6 +103,6 @@ module "keyvault" {
   resource_group_location = module.resource_group.rg_location
   resource_group_name     = module.resource_group.rg_name
   tags                    = local.tags
-  sku_name                = "standard"
-  Keyvault_secret         = local.keyvault.secrets
+  sku_name                = local.keyvault.sku_name
+  Keyvault_secrets        = local.keyvault.secrets
 }

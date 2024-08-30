@@ -107,9 +107,10 @@ locals {
   }
 
   keyvault = {
-    name = "kv-${local.org}-${var.env}-admin" # must be globally unique
+    name     = "kv-${local.org}-${var.env}-admin" # must be globally unique
+    sku_name = "standard"
     secrets = {
-      "db-password" = var.sql_server_password
+      "db-password" = var.sql_server_password #value from .tfvars or use keybase
       "api-key"     = ""
       "jwt-secret"  = ""
     }

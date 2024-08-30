@@ -18,8 +18,8 @@ variable "sku_name" {
   description = "Select Standard or Premium SKU"
 }
 
-variable "Keyvault_secret" {
-  type = map(string)  
+variable "Keyvault_secrets" {
+  type        = map(string)
   description = "keys for secrets to be created"
 }
 

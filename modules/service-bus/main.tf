@@ -32,7 +32,6 @@ locals {
   }
 }
 
-
 #service bus topics. Add more topic using this sample below
 resource "azurerm_servicebus_topic" "topics" {
   for_each              = local.topics
