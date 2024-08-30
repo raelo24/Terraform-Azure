@@ -140,3 +140,31 @@ The list of function apps to create are specified below. Note that updating this
 ```
   azure_function_list =   ["my-function-${var.env}", "my-function2-${var.env}", "my-function3-${var.env}"]
 ```
+### Application Gateway ###
+This module provisions the application gateway. The configuration is defined below.
+
+```
+app_gateway = {
+    dev = {
+      agw_name                = "${local.org}-agw-${var.env}"
+      agw_sku_tier            = "WAF_v2"
+      agw_sku_name            = "WAF_v2"
+      agw_identity_type       = "UserAssigned"
+      agw_min_capacity        = 1
+      agw_max_capacity        = 2
+      vnet_address_space      = ["10.0.0.0/16"]
+      subnet_address_prefixes = ["10.0.1.0/24"]
+      probe_path              = "/health"
+      path_rules              = ["/backend/*"]
+      enable_waf              = true
+    },
+    //more environments can follow
+}
+```
+The app gateway module also provisions a number of services connected to the application gateway such as public IP address, virtual network, subnet, analytics workspace, managed identity, WAF. 
+
+The parameter options can be defined as follows
+| Name | Options |  Default |
+|------|-------------|:--------:|
+|AGW SKU Tier | Standard, Standard_v2, WAF and WAF_v2 | Standard |
+|AGW SKU Name | Standard_Small, Standard_Medium, Standard_Large, Standard_v2, WAF_Medium, WAF_Large, and WAF_v2| WAF_v2 |
