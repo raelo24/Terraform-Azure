@@ -11,7 +11,7 @@ resource "azurerm_key_vault" "key_vault" {
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = "1657f329-feca-4157-bab8-1794d7746eeb" //data.azurerm_client_config.current.object_id
+    object_id = data.azurerm_client_config.current.object_id
 
     #set the default permission for the secrets contained in this key vault
     secret_permissions = [

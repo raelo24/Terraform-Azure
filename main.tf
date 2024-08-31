@@ -34,7 +34,7 @@ module "sql_server_db" {
   sql_database_collation    = local.sqlserverdb[var.env].sql_database_collation
   sql_server_version        = local.sqlserverdb[var.env].sql_server_version
   sql_server_admin_username = var.sql_server_username
-  sql_server_admin_password = var.sql_server_password
+  sql_server_admin_password = base64encode(var.sql_server_password)
   sql_database_sku_name     = local.sqlserverdb[var.env].sql_database_sku_name
   database_list             = local.sqlserverdb[var.env].sql_databases
   tags                      = local.tags
@@ -79,11 +79,10 @@ module "application_gateway" {
   resource_group_name     = module.resource_group.rg_name
   vnet_address_space      = local.app_gateway[var.env].vnet_address_space
   subnet_address_prefixes = local.app_gateway[var.env].subnet_address_prefixes
-  custom_probe_path       = local.app_gateway[var.env].probe_path
-  path_rules              = local.app_gateway[var.env].path_rules
   identity_type           = local.app_gateway[var.env].agw_identity_type
   enable_waf              = local.app_gateway[var.env].enable_waf
   tags                    = local.tags
+  backend_config          = local.web_application[var.env].services
 }
 
 module "service_bus" {
@@ -96,7 +95,6 @@ module "service_bus" {
   tags                = local.tags
 }
 
-
 module "keyvault" {
   source                  = "./modules/key-vault"
   kv_name                 = local.keyvault.name
@@ -105,4 +103,27 @@ module "keyvault" {
   tags                    = local.tags
   sku_name                = local.keyvault.sku_name
   Keyvault_secrets        = local.keyvault.secrets
+}
+
+module "webapp" {
+  source                     = "./modules/web-app"
+  location                   = module.resource_group.rg_location
+  resource_group             = module.resource_group.rg_name
+  appinsight_connection      = module.app-insights.connection_stromg
+  appinsight_key             = module.app-insights.instrumentation_key
+  keyvault_id                = module.keyvault.keyvaultid
+  redis_cache_connection     = module.redis_cache.connectionstring
+  service_bus_connection     = module.service_bus.connection_string
+  service_plan_id            = module.service_plan.appserviceplanid
+  vnet_route_all_enabled     = true
+  storage_account_access_key = module.storage.accesskey
+  managed_identity_id        = module.application_gateway.managed_identity_id
+  sql_server_name            = local.sqlserverdb[var.env].sql_server_name
+  sql_server_username        = var.sql_server_username
+  services                   = local.web_application[var.env].services
+  vnet_name                  = module.application_gateway.vnet_name
+  swift_subnet_prefixes      = local.web_application[var.env].swift_subnet_prefixes
+  environment                = var.env
+  websockets_enabled         = true
+  depends_on                 = [module.app-insights, module.application_gateway, module.service_plan, module.keyvault, module.redis_cache]
 }

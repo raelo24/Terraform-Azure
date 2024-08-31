@@ -22,18 +22,17 @@ variable "servicebus-sku" {
 
 variable "sql_server_username" {
   type        = string
-  description = "The server username. Store in .tfvars"
-}
-
-variable "sql_server_password" {
-  type        = string
-  description = "The initial password to use. Stored in .tfvars"
+  description = "The server username"
 }
 
 variable "storage-account-tier" {
   type        = string
   description = "storage account tier"
   default     = "Standard"
+}
+
+variable "sql_server_password" {
+  type = string
 }
 
 variable "storage-acc-replication-type" {

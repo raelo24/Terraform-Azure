@@ -18,20 +18,20 @@ locals {
     }
   }
 
-  azure_function_list = ["my-function-${var.env}", "my2-function-${var.env}", "my3-function-${var.env}"]
+  azure_function_list = ["my-function-${local.org}-${var.env}", "my2-function-${local.org}-${var.env}"]
 
   sqlserverdb = {
     dev = {
-      sql_server_name        = "sqlserver${var.env}"
+      sql_server_name        = "${local.org}sqlserver${var.env}"
       sql_server_version     = "12.0"
       sql_databases          = ["firstdb", "secondb"]
       sql_database_collation = "SQL_Latin1_General_CP1_CI_AS"
       sql_database_sku_name  = "Basic"
     }
     prod = {
-      sql_server_name        = "sqlserver${var.env}"
+      sql_server_name        = "${local.org}sqlserver${var.env}"
       sql_server_version     = "12.0"
-      sql_databases          = ["thirddb", "fouthdb"]
+      sql_databases          = ["firstdb", "secondb"]
       sql_database_collation = "SQL_Latin1_General_CP1_CI_AS"
       sql_database_sku_name  = "Basic"
     }
@@ -87,8 +87,6 @@ locals {
       agw_max_capacity        = 2
       vnet_address_space      = ["10.0.0.0/16"]
       subnet_address_prefixes = ["10.0.1.0/24"]
-      probe_path              = "/health"
-      path_rules              = ["/backend/*"]
       enable_waf              = true
     }
     prod = {
@@ -100,8 +98,6 @@ locals {
       agw_max_capacity        = 2
       vnet_address_space      = ["10.0.0.0/16"]
       subnet_address_prefixes = ["10.0.1.0/24"]
-      probe_path              = "/health"
-      path_rules              = ["/backend/*"]
       enable_waf              = true
     }
   }
@@ -110,9 +106,24 @@ locals {
     name     = "kv-${local.org}-${var.env}-admin" # must be globally unique
     sku_name = "standard"
     secrets = {
-      "db-password" = var.sql_server_password #value from .tfvars or use keybase
-      "api-key"     = ""
-      "jwt-secret"  = ""
+      //secret => value
+      "db-password"         = base64encode(var.sql_server_password)
+      "api-key"             = ""
+      "jwt-secret"          = ""
+      "instrumentation-key" = ""
+    }
+  }
+
+  #-
+  #- Note: api in services below will be created as ${api}.azurewebsites.net
+  #- 
+  web_application = {
+    dev = {
+      swift_subnet_prefixes = ["10.0.2.0/24"]
+      services = [
+        { path = "first", api = "api-${local.org}-first", db_name = "firstdb" },
+        { path = "second", api = "api-${local.org}-second", db_name = "secondb" }
+      ]
     }
   }
 }

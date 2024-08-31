@@ -1,7 +1,7 @@
 # -
 # - Configuration file for Application gateway. 
 # - This can be configured to meet custom specific needs and cost considerations
-# - Consideration is given if you decide to use WAF_v2 for which polocies can be set
+# - Consideration is given if you decide to use WAF_v2 for which policies can be set
 
 # App Gateway public IP
 resource "azurerm_public_ip" "public_agw_ip" {
@@ -28,6 +28,13 @@ resource "azurerm_subnet" "subnet" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = var.subnet_address_prefixes
+  service_endpoints    = ["Microsoft.Sql", "Microsoft.Web", "Microsoft.AzureActiveDirectory", "Microsoft.ServiceBus", "Microsoft.KeyVault", "Microsoft.Storage"]
+}
+
+resource "azurerm_nat_gateway" "nat_gateway" {
+  name                = "nat-gateway"
+  resource_group_name = var.resource_group_name
+  location            = var.location
 }
 
 locals {
@@ -35,6 +42,10 @@ locals {
   http_listener_name       = "${var.agw_name}-listener"
   gateway_ip_configuration = "${var.agw_name}-configuration"
   routing_rule_name        = "${var.agw_name}-routing-rule"
+  pool_config = {
+    for config in var.backend_config :
+    config.path => config.api
+  }
 }
 
 # App Gateway workspace
@@ -89,12 +100,13 @@ resource "azurerm_application_gateway" "agw" {
     port = 80
   }
 
+  # Associate app gateway to its own public ip
   frontend_ip_configuration {
     name                 = var.frontend_ip_name
     public_ip_address_id = azurerm_public_ip.public_agw_ip.id
   }
 
-  # Listener for HTTP Port 80. Change to Https for 
+  # Listener for HTTP Port 80. Change to Https for 443
   http_listener {
     name                           = local.http_listener_name
     frontend_ip_configuration_name = var.frontend_ip_name
@@ -102,11 +114,16 @@ resource "azurerm_application_gateway" "agw" {
     protocol                       = "Http"
   }
 
-  backend_address_pool {
-    name = var.backend_address_pool
+  dynamic "backend_address_pool" {
+    for_each = local.pool_config
+    content {
+      name = "${backend_address_pool.key}-pool"
+      fqdns = [
+        "${backend_address_pool.value}.azurewebsites.net"
+      ]
+    }
   }
 
-  # Change same for https with corresponding values
   probe {
     name                                      = var.custom_probe_name
     protocol                                  = "Http"
@@ -117,7 +134,6 @@ resource "azurerm_application_gateway" "agw" {
     pick_host_name_from_backend_http_settings = true
   }
 
-  #Repeat same for https with corresponding values
   backend_http_settings {
     name                                = var.backend_http_settings
     cookie_based_affinity               = "Disabled"
@@ -140,12 +156,16 @@ resource "azurerm_application_gateway" "agw" {
   url_path_map {
     name                               = var.url_path_name
     default_backend_http_settings_name = var.backend_http_settings
-    default_backend_address_pool_name  = var.backend_address_pool
-    path_rule {
-      name                       = local.routing_rule_name
-      backend_address_pool_name  = var.backend_address_pool
-      backend_http_settings_name = var.backend_http_settings
-      paths                      = var.path_rules
+    default_backend_address_pool_name  = "${keys(local.pool_config)[0]}-pool"
+
+    dynamic "path_rule" {
+      for_each = local.pool_config
+      content {
+        name                       = "${path_rule.key}-rule"
+        backend_address_pool_name  = "${path_rule.key}-pool"
+        backend_http_settings_name = var.backend_http_settings
+        paths                      = ["/${path_rule.key}/*"]
+      }
     }
   }
 }

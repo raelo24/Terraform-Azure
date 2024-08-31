@@ -5,13 +5,16 @@ variable "location" {
 
 variable "resource_group_name" {
   type        = string
-  description = ""
+  description = "Resouce group"
 }
 
-variable "backend_address_pool" {
-  type        = string
-  default     = "backend_address_pool"
-  description = "Backend address pool"
+variable "backend_config" {
+  type = list(object({
+    path    = string
+    api     = string
+    db_name = string
+  }))
+  description = "Backend config for pool and FQDN"
 }
 
 variable "backend_http_settings" {
@@ -43,7 +46,7 @@ variable "identity_type" {
 
 variable "firewall_mode" {
   type        = string
-  default     = "Detection" # or Prevention
+  default     = "Prevention" # Detection
   description = "The firewall setting"
 }
 
@@ -81,11 +84,6 @@ variable "tags" {
   description = "Tags for resources"
 }
 
-variable "path_rules" {
-  type        = list(string)
-  description = "Gateway path rules"
-}
-
 variable "url_path_name" {
   type        = string
   default     = "agw_path"
@@ -105,6 +103,7 @@ variable "enable_waf" {
 }
 variable "custom_probe_path" {
   type        = string
+  default     = "/probe"
   description = "health probe path"
 }
 
