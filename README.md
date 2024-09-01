@@ -15,6 +15,8 @@ The following Azure resources are configured.
 9. Radis Cache
 10. SQL Database
 11. Storage
+12. App Service
+13. NAT Gateway
 
 ## Usage ##
 The config.tf serves as the file to set most account-specific details for the cloud. The values therein are referenced as
@@ -295,3 +297,65 @@ The options for the parameters are defined as
   az role assignment create --assignee "xxxx-1249-446d-8de5-53xxxx" --role "Key Vault Administrator" --scope "/subscriptions/0000001100000000"
 ```
 Enter the id for the service principal as the assignee.
+
+### NAT Gateway ###
+```
+module "nat_gateway" {
+  source              = "./modules/nat-gateway"
+  location            = module.resource_group.rg_location
+  resource_group_name = module.resource_group.rg_name
+  subnet_prefixes     = local.web_application[var.env].subnet_prefixes
+  vnet_name           = module.application_gateway.vnet_name
+  depends_on = [
+    module.application_gateway
+  ]
+}
+```
+
+### App Service ###
+The web app module creates the web application or app service
+```
+module "webapp" {
+  source                     = "./modules/web-app"
+  location                   = module.resource_group.rg_location
+  resource_group             = module.resource_group.rg_name
+  appinsight_connection      = module.app-insights.connection_stromg
+  appinsight_key             = module.app-insights.instrumentation_key
+  keyvault_id                = module.keyvault.keyvaultid
+  redis_cache_connection     = module.redis_cache.connectionstring
+  service_bus_connection     = module.service_bus.connection_string
+  service_plan_id            = module.service_plan.appserviceplanid
+  vnet_route_all_enabled     = true
+  storage_account_access_key = module.storage.accesskey
+  managed_identity_id        = module.application_gateway.managed_identity_id
+  sql_server_name            = local.sqlserverdb[var.env].sql_server_name
+  sql_server_username        = var.sql_server_username
+  services                   = local.web_application[var.env].services
+  environment                = var.env
+  websockets_enabled         = true
+  appservice_subnet          = module.nat_gateway.appservice_subnet_id
+  depends_on = [
+    module.app-insights, module.application_gateway,
+    module.service_plan, module.keyvault, module.redis_cache,
+    module.nat_gateway
+  ]
+}
+```
+
+The app service settings are defined in the config file as:
+
+```
+  web_application = {
+    dev = {
+      subnet_prefixes = ["10.0.3.0/24"]
+      services = [
+        { path = "first", api = "api-${local.org}-first", db_name = "firstdb" },
+        { path = "second", api = "api-${local.org}-second", db_name = "secondb" }
+      ]
+    }
+  }
+  ```
+
+  The terraform module uses the subnet_prefixes to create a subnet for the app services and it is used for vnet integration. This subnet will be associated with the NAT so you can have specific outbound IP addressed (useful for whitelisting by third-party vendors)
+  
+  For each of the objects in services, the module uses the value of 'api' it to create a web application with the name specified in the format ${api}.azurewebsites.net. The 'path' value defines the backend address pool and path rule used in the application gateway 
