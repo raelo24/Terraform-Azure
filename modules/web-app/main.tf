@@ -47,27 +47,8 @@ resource "azurerm_linux_web_app" "webapp" {
   }
 }
 
-resource "azurerm_subnet" "swift_subnet" {
-  count                = length(var.swift_subnet_prefixes) > 0 ? 1 : 0
-  name                 = "swift_connection"
-  address_prefixes     = var.swift_subnet_prefixes
-  resource_group_name  = var.resource_group
-  virtual_network_name = var.vnet_name
-  delegation {
-    name = "serverfams"
-    service_delegation {
-      name = "Microsoft.Web/serverFarms"
-      actions = [
-        "Microsoft.Network/virtualNetworks/subnets/action"
-      ]
-    }
-  }
-  depends_on = [azurerm_linux_web_app.webapp]
-}
-
-
 resource "azurerm_app_service_virtual_network_swift_connection" "vnet_integration" {
-  for_each       = length(var.swift_subnet_prefixes) > 0 ? azurerm_linux_web_app.webapp : {}
+  for_each       = length(local.api_services) > 0 ? azurerm_linux_web_app.webapp : {}
   app_service_id = each.value.id
-  subnet_id      = azurerm_subnet.swift_subnet[0].id
+  subnet_id      = var.appservice_subnet
 }

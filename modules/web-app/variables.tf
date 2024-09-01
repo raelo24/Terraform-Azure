@@ -25,18 +25,8 @@ variable "environment" {
 
 variable "vnet_route_all_enabled" {
   type        = bool
-  default = true
+  default     = true
   description = "Whether all outbound traffic should all have VNSG or User Defined Route"
-}
-
-variable "swift_subnet_prefixes" {
-  type        = list(string)
-  description = "subnet prefixes for VNET integration for the web application"
-}
-
-variable "vnet_name" {
-  type        = string
-  description = "Name of the virtual network"
 }
 
 variable "services" {
@@ -93,3 +83,7 @@ variable "managed_identity_id" {
   description = "Id of the managed identity"
 }
 
+variable "appservice_subnet" {
+  type        = string
+  description = "Subnet created for app service, along with service endpoints"
+}

@@ -86,7 +86,7 @@ locals {
       agw_min_capacity        = 1
       agw_max_capacity        = 2
       vnet_address_space      = ["10.0.0.0/16"]
-      subnet_address_prefixes = ["10.0.1.0/24"]
+      subnet_prefixes = ["10.0.1.0/24"]
       enable_waf              = true
     }
     prod = {
@@ -97,7 +97,7 @@ locals {
       agw_min_capacity        = 1
       agw_max_capacity        = 2
       vnet_address_space      = ["10.0.0.0/16"]
-      subnet_address_prefixes = ["10.0.1.0/24"]
+      subnet_prefixes = ["10.0.1.0/24"]
       enable_waf              = true
     }
   }
@@ -119,7 +119,7 @@ locals {
   #- 
   web_application = {
     dev = {
-      swift_subnet_prefixes = ["10.0.2.0/24"]
+      subnet_prefixes = ["10.0.2.0/24"]
       services = [
         { path = "first", api = "api-${local.org}-first", db_name = "firstdb" },
         { path = "second", api = "api-${local.org}-second", db_name = "secondb" }

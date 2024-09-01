@@ -78,7 +78,7 @@ module "application_gateway" {
   location                = module.resource_group.rg_location
   resource_group_name     = module.resource_group.rg_name
   vnet_address_space      = local.app_gateway[var.env].vnet_address_space
-  subnet_address_prefixes = local.app_gateway[var.env].subnet_address_prefixes
+  subnet_address_prefixes = local.app_gateway[var.env].subnet_prefixes
   identity_type           = local.app_gateway[var.env].agw_identity_type
   enable_waf              = local.app_gateway[var.env].enable_waf
   tags                    = local.tags
@@ -105,6 +105,18 @@ module "keyvault" {
   Keyvault_secrets        = local.keyvault.secrets
 }
 
+
+module "nat_gateway" {
+  source              = "./modules/nat-gateway"
+  location            = module.resource_group.rg_location
+  resource_group_name = module.resource_group.rg_name
+  subnet_prefixes     = local.web_application[var.env].subnet_prefixes
+  vnet_name           = module.application_gateway.vnet_name
+  depends_on = [
+    module.application_gateway
+  ]
+}
+
 module "webapp" {
   source                     = "./modules/web-app"
   location                   = module.resource_group.rg_location
@@ -121,9 +133,12 @@ module "webapp" {
   sql_server_name            = local.sqlserverdb[var.env].sql_server_name
   sql_server_username        = var.sql_server_username
   services                   = local.web_application[var.env].services
-  vnet_name                  = module.application_gateway.vnet_name
-  swift_subnet_prefixes      = local.web_application[var.env].swift_subnet_prefixes
   environment                = var.env
   websockets_enabled         = true
-  depends_on                 = [module.app-insights, module.application_gateway, module.service_plan, module.keyvault, module.redis_cache]
+  appservice_subnet          = module.nat_gateway.appservice_subnet_id
+  depends_on = [
+    module.app-insights, module.application_gateway,
+    module.service_plan, module.keyvault, module.redis_cache,
+    module.nat_gateway
+  ]
 }
