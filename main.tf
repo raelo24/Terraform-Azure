@@ -41,14 +41,22 @@ module "sql_server_db" {
 }
 
 module "azure_function" {
-  source                     = "./modules/function-app"
-  function_list              = local.azure_function_list
-  resource_group_name        = module.resource_group.rg_name
-  resource_group_location    = module.resource_group.rg_location
-  storage_name               = module.storage.storagename
-  storage_account_access_key = module.storage.accesskey
-  service_plan_id            = module.service_plan.appserviceplanid
-  tags                       = local.tags
+  source                        = "./modules/function-app"
+  function_list                 = local.azure_function_list
+  resource_group_name           = module.resource_group.rg_name
+  resource_group_location       = module.resource_group.rg_location
+  storage_name                  = module.storage.storagename
+  storage_account_access_key    = module.storage.accesskey
+  service_plan_id               = module.service_plan.appserviceplanid
+  app_insights_connectionstring = module.app-insights.connection_stromg
+  app_insights_key              = module.app-insights.instrumentation_key
+  tags                          = local.tags
+  env                           = var.env
+  service_bus_connection_string = module.service_bus.connection_string
+  storage_connection_string     = module.storage.blobconnectionstring
+  depends_on = [
+    module.storage, module.service_plan, module.app-insights, module.service_bus
+  ]
 }
 
 module "redis_cache" {
@@ -61,13 +69,25 @@ module "redis_cache" {
   tags                 = local.tags
 }
 
+module "analytics_workspace" {
+  source              = "./modules/analytics-workspace"
+  workspace_name      = local.analytics_workspace[var.env].name
+  location            = module.resource_group.rg_location
+  resource_group_name = module.resource_group.rg_name
+  analytics_sku       = local.analytics_workspace[var.env].sku
+  data_retention_days = local.analytics_workspace[var.env].data_retention_days
+  tags                = local.tags
+}
+
 module "app-insights" {
   source              = "./modules/application-insights"
   app_insights_name   = local.app_insights.name
   resource_group_name = module.resource_group.rg_name
   location            = module.resource_group.rg_location
   application_type    = local.app_insights.application_type
+  workspace_id        = module.analytics_workspace.workspace_id
   tags                = local.tags
+  depends_on          = [module.analytics_workspace]
 }
 
 module "application_gateway" {

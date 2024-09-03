@@ -126,4 +126,17 @@ locals {
       ]
     }
   }
+
+  analytics_workspace = {
+    dev = {
+      name                = "workspace-${local.org}-${var.env}"
+      data_retention_days = 90
+      sku                 = "PerGB2018"
+    },
+    prod = {
+      name                = "workspace-${local.org}-${var.env}"
+      data_retention_days = 180
+      sku                 = "Standard"
+    }
+  }
 }

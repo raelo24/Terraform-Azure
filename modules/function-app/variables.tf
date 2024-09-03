@@ -33,4 +33,27 @@ variable "tags" {
   description = "Tags for resources"
 }
 
+variable "app_insights_connectionstring" {
+  type        = string
+  description = "Connection string of app insight"
+}
 
+variable "app_insights_key" {
+  type        = string
+  description = "Application insights Instrumentation Key"
+}
+
+variable "env" {
+  type        = string
+  description = "Environment"
+}
+
+variable "storage_connection_string" {
+  type = string
+  description = "Storage account connection string"
+}
+
+variable "service_bus_connection_string" {
+  type = string
+  description = "The connection string of the service bus"
+}

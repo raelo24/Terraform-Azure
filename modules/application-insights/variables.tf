@@ -20,3 +20,8 @@ variable "application_type" {
   type        = string
   description = "Specifies the type of Application Insights to create"
 }
+
+variable "workspace_id" {
+  type        = string
+  description = "Id of log analytics workspace"
+}
