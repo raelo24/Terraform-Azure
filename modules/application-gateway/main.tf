@@ -99,12 +99,20 @@ resource "azurerm_application_gateway" "agw" {
     public_ip_address_id = azurerm_public_ip.public_agw_ip.id
   }
 
-  # Listener for HTTP Port 80. Change to Https for 443
+  # Listener for http port 80. 
   http_listener {
-    name                           = local.http_listener_name
-    frontend_ip_configuration_name = var.frontend_ip_name
-    frontend_port_name             = var.frontend_port_name
+    name                           = "${local.http_listener_name}-https"
+    frontend_ip_configuration_name = "${var.frontend_ip_name}-config"
+    frontend_port_name             = "${var.frontend_port_name}-80"
     protocol                       = "Http"
+  }
+
+  # Listener for https port 443 
+  http_listener {
+    name                           = "${local.http_listener_name}-https"
+    frontend_ip_configuration_name = "${var.frontend_ip_name}-config"
+    frontend_port_name             = "${var.frontend_port_name}-443"
+    protocol                       = "Https"
   }
 
   dynamic "backend_address_pool" {
@@ -117,25 +125,31 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  probe {
-    name                                      = var.custom_probe_name
-    protocol                                  = "Http"
-    path                                      = var.custom_probe_path
-    interval                                  = "60"
-    timeout                                   = "60"
-    unhealthy_threshold                       = "3"
-    pick_host_name_from_backend_http_settings = true
+  dynamic "backend_http_settings" {
+    for_each = local.pool_config
+    content {
+      name                                = "${backend_http_settings.key}-http-setting"
+      cookie_based_affinity               = "Disabled"
+      port                                = 80
+      protocol                            = "Http"
+      pick_host_name_from_backend_address = true
+      probe_name                          = "${backend_http_settings.key}-probe"
+      path                                = "/"
+      request_timeout                     = 60
+    }
   }
 
-  backend_http_settings {
-    name                                = var.backend_http_settings
-    cookie_based_affinity               = "Disabled"
-    port                                = 80
-    protocol                            = "Http"
-    pick_host_name_from_backend_address = true
-    probe_name                          = var.custom_probe_name
-    path                                = "/"
-    request_timeout                     = 60
+  dynamic "probe" {
+    for_each = local.pool_config
+    content {
+      name                                      = "${probe.key}-probe"
+      protocol                                  = "Http"
+      path                                      = "/health-${probe.key}"
+      interval                                  = "60"
+      timeout                                   = "60"
+      unhealthy_threshold                       = "3"
+      pick_host_name_from_backend_http_settings = true
+    }
   }
 
   request_routing_rule {
