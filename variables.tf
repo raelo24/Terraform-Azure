@@ -40,3 +40,8 @@ variable "storage-acc-replication-type" {
   description = "storage account replication type [LRS ZRS GRS RAGRS GZRS RAGZRS]"
   default     = "LRS"
 }
+
+variable "subscription_id" {
+  type        = string
+  description = "Subscription to apply terraform to"
+}
