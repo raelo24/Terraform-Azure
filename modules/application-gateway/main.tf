@@ -176,3 +176,23 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 }
+
+resource "azurerm_monitor_diagnostic_setting" "agw_monitor_settings" {
+  name                       = "application_gateway_monitor_settings"
+  target_resource_id         = azurerm_application_gateway.agw.id
+  log_analytics_workspace_id = var.workspace_id
+
+  dynamic "enabled_log" {
+    for_each = var.enabled_logs
+    content {
+      category = enabled_log.value
+    }
+  }
+
+  dynamic "enabled_metric" {
+    for_each = var.enabled_metrics
+    content {
+      category = enabled_metric.value
+    }
+  }
+}

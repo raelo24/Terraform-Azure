@@ -111,3 +111,18 @@ variable "routing_rule_type" {
   type    = string
   default = "PathBasedRouting" # or Basic;  PathBasedRouting is for URL-based routing  
 }
+
+variable "workspace_id" {
+  type        = string
+  description = "Workspace Id of log analytics"
+}
+
+variable "enabled_logs" {
+  type        = list(string)
+  description = "Types of logs to monitor in app gateway"
+}
+
+variable "enabled_metrics" {
+  type        = list(string)
+  description = "Types of metrics to monitor in app gateway"
+}

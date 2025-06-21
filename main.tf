@@ -103,6 +103,9 @@ module "application_gateway" {
   enable_waf              = local.app_gateway[var.env].enable_waf
   tags                    = local.tags
   backend_config          = local.web_application[var.env].services
+  enabled_metrics         = local.app_gateway[var.env].enabled_metrics
+  enabled_logs            = local.app_gateway[var.env].enabled_logs
+  workspace_id            = module.analytics_workspace.workspace_id
 }
 
 module "service_bus" {

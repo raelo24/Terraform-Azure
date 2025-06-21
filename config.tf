@@ -88,6 +88,8 @@ locals {
       vnet_address_space      = ["10.0.0.0/16"]
       subnet_prefixes = ["10.0.1.0/24"]
       enable_waf              = true
+      enabled_metrics         = ["AllMetrics"]
+      enabled_logs            = ["ApplicationGatewayAccessLog", "ApplicationGatewayPerformanceLog"]
     }
     prod = {
       agw_name                = "${local.org}-agw-${var.env}"
@@ -99,6 +101,12 @@ locals {
       vnet_address_space      = ["10.0.0.0/16"]
       subnet_prefixes = ["10.0.1.0/24"]
       enable_waf              = true
+      enabled_metrics         = ["AllMetrics"]
+      enabled_logs = [
+        "ApplicationGatewayAccessLog",
+        "ApplicationGatewayPerformanceLog",
+        "ApplicationGatewayFirewallLog"
+      ]
     }
   }
 
